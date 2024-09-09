@@ -1,0 +1,20 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = __importDefault(require("express"));
+const router = express_1.default.Router();
+const AuthController_1 = require("../controllers/AuthController");
+const UserRepository_1 = require("../../database/repository/UserRepository");
+const UserService_1 = require("../../services/UserService");
+const mailer_1 = require("../../external-libraries/mailer");
+const bcrypt_1 = require("../../external-libraries/bcrypt");
+const repository = new UserRepository_1.UserRepository();
+const bcrypt = new bcrypt_1.Bcrypt();
+const mailer = new mailer_1.Mailer();
+const auth = new UserService_1.authService(repository, bcrypt, mailer);
+const controller = new AuthController_1.authController(auth);
+router.post("/signup", controller.userRegistration.bind(controller));
+router.get("/verify-email", controller.userVerification.bind(controller));
+exports.default = router;
