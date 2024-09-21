@@ -2,8 +2,11 @@ import { User } from "../../entities/User";
 import { IUserRepository } from "../../interfaces/IUserRepository";
 import { User as UserModel } from "../models/UserSchema";
 import { Admin as AdminModel } from "../models/AdminSchema";
+import { Todo as TodoModel } from "../models/TodoSchema";
 import { ForgotSchema as ForgotPassword } from "../models/ForgotPassSchema";
 import { Admin } from "../../entities/Admin";
+import { IToken } from "../../interfaces/IToken";
+import { ITodo } from "../../interfaces/ITodo";
 
 export class UserRepository implements IUserRepository {
   async findByEmail(email: string): Promise<User | null> {
@@ -151,6 +154,31 @@ export class UserRepository implements IUserRepository {
     }
     return null;
   }
+
+  async findById(userId:string): Promise<User | null>{
+    try {
+      const user = await UserModel.findById(userId);
+      if (user) {
+        return {
+          id: user._id.toString(),
+          firstName: user.firstName,
+          lastName: user.lastName ?? "",
+          email: user.email,
+          password: user.password ?? "",
+          verify_token: user.verify_token ?? "",
+          verified: user.verified,
+          isBlocked:user.isBlocked ?? false
+        } as User;
+      }
+      return null  
+      
+    } catch (error) {
+      console.error("Error during finding user by id:", error);
+      return null;
+    }
+  }
+
+
   async findUsers(): Promise<User[] | null> {
     try {
       const documents = await UserModel.find();
@@ -208,7 +236,6 @@ export class UserRepository implements IUserRepository {
 
   async createOrUpdateGoogleUser(profile: any): Promise<any> {
     try {
-    console.log("got the profile :", profile, "Stopped here");
     const existingUser = await UserModel.findOne({ googleId: profile.id });
     console.log(existingUser, "eX");
     if (existingUser) {
@@ -264,5 +291,68 @@ export class UserRepository implements IUserRepository {
       return null;
     }
   }
+
+  async updateTodo(userId:string,task:string): Promise<ITodo | null>{
+    try {
+    const newTodo = new TodoModel({ 
+      task:task,
+      completed:false,
+      userId:userId
+     });
+    await newTodo.save();
+    return newTodo
+    } catch (error) {
+      console.error("Error during adding Task:", error);
+      return null;
+    }
+  }
+
+  async fetchTodo(userId:string): Promise<ITodo[] | null>{
+    try {
+      let taskList = TodoModel.find({userId:userId})
+      return taskList;
+    } catch (error) {
+      console.error("Error during fetching todo task:", error);
+      return null;
+    }
+  }
+
+  async updateTaskList(userId: string, TaskId: string): Promise<ITodo | null> {
+  try {
+    console.log(userId,TaskId,"delete aakkan ullath back iol kitty last")
+
+    const deletedTask = await TodoModel.findOneAndDelete({_id: TaskId,userId });
+    console.log(deletedTask,"delete aakkan ullath back iol kitty last")
+    if (!deletedTask) {
+      return null;
+    }
+
+    return deletedTask;
+  } catch (error) {
+    console.error("Error deleting todo task:", error);
+    return null;
+  }
+}
+
+async updateTaskCompleation(userId: string, TaskId: string): Promise<ITodo | null> {
+  try {
+
+    const strikingTask = await TodoModel.findOneAndUpdate(
+      { _id: TaskId, userId },
+      [{ $set: { completed: { $not: "$completed" } } }],
+      { new: true }
+    );
+    
+    if (!strikingTask) {
+      return null;
+    }
+
+    return strikingTask;
+  } catch (error) {
+    console.error("Error striking todo task:", error);
+    return null;
+  }
+
+}
   
 }

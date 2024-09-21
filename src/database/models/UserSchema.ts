@@ -9,6 +9,7 @@ const UserSchema = new mongoose.Schema({
     verified:{type:Boolean,required:true, default:false},
     googleId: { type: String, required: false },
     isBlocked:{type:Boolean,required:false,default:false}
+    
 },{timestamps:true});
 
 export const User = mongoose.model("User",UserSchema)

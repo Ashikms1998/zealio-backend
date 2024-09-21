@@ -72,7 +72,7 @@ export class authController {
         const { accessToken, refreshToken } = this.authService.generateToken(
           user.id
         );
-        console.log(accessToken, "AR", refreshToken, "AR");
+        
         if (accessToken && refreshToken) {
           res.cookie("refreshToken", refreshToken, {
             httpOnly: true,
@@ -237,8 +237,6 @@ async authCallbackController(req:Request,res:Response,next:NextFunction)
       user.id
     )
 
-    console.log(accessToken ,"acc", refreshToken,"refresh");
-
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: true,
@@ -277,5 +275,79 @@ async checkBlocked(req:Request,res:Response,next:NextFunction){
   }
 }
 
+async addTask(req:Request,res:Response,next:NextFunction){
+  try {
+    const {task,userId} = req.body;
+    const todoUpdate = await this.authService.todoUpdate(userId,task)
+    if (todoUpdate) {
+      res.status(201).json(todoUpdate);
+    } else {
+      res.status(404).json({ error: 'User not found' });
+    }
+  } catch (error) {
+    console.error('Error during adding todo task:', error);
+    return res.status(500).json({ error: 'An error occurred while adding todo task.' });
+  }
+}
+
+async fetchingTasks(req:Request,res:Response,next:NextFunction){
+  try {
+    const userId = req.query.userId
+    const todoList = await this.authService.todoList(userId as string)
+    if (todoList) {
+      res.status(201).json(todoList);
+    } else {
+      res.status(404).json({ error: 'todoList not found' });
+    }
+  } catch (error) {
+    console.error('Error during fetching todoList:', error);
+    return res.status(500).json({ error: 'An error occurred during fetching todoList.' });
+  }
+}
+
+async deleteTask(req: Request, res: Response, next: NextFunction) {
+  try {
+    const TaskId = req.query._id as string;
+    const userId = req.query.userId as string;
+
+    if (!TaskId || !userId) {
+      return res.status(400).json({ message: "Task ID or User ID is missing" });
+    }
+
+    const deletedTask = await this.authService.deletingTask(TaskId, userId);
+
+    if (!deletedTask) {
+      return res.status(404).json({ message: "Task not found or unauthorized action" });
+    }
+
+    res.status(200).json({ message: "Task deleted successfully", deletedTask });
+  } catch (error) {
+    console.log('Error during deleting task', error);
+    res.status(500).json({ message: "Error deleting task" });
+  }
+}
+
+async updateTaskCompleation(req: Request, res: Response, next: NextFunction) {
+  try {
+    const TaskId = req.query._id as string;
+    const userId = req.query.userId as string;
+
+    if (!TaskId || !userId) {
+      return res.status(400).json({ message: "Task ID or User ID is missing" });
+    }
+
+    const taskStriked = await this.authService.strikeTask(TaskId, userId);
+
+    if (!taskStriked) {
+      return res.status(404).json({ message: "Task not found or unauthorized action" });
+    }
+
+    res.status(200).json({ message: "Task deleted successfully", taskStriked });
+  } catch (error) {
+    console.log('Error during striking task', error);
+    res.status(500).json({ message: "Error striking task" });
+  }
+
+}
 
 }

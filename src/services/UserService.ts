@@ -7,6 +7,7 @@ import {v4 as uuidv4} from "uuid"
 import emailTemplate from "../presentation/utils/emailTemplate";
 import { IToken } from "../interfaces/IToken";
 import { Admin } from "../entities/Admin";
+import { ITodo } from "../interfaces/ITodo";
 
 
 export class authService implements IUserAuth {
@@ -199,5 +200,69 @@ export class authService implements IUserAuth {
             console.error('Error in service while toggling block status:', error);
             return null;
         }
+    }
+
+    async todoUpdate(userId:string,task:string): Promise<ITodo | null>{
+    try {
+        const user = await this.repository.findById(userId)
+        if (!user) {
+        return null
+        }
+        const userTask = await this.repository.updateTodo(userId,task)
+        return userTask
+    } catch (error) {
+        console.error('Error during updating todo:', error);
+        throw error; 
+    }
+    }
+
+    async todoList(userId:string):Promise<ITodo[] | null>{
+        try {
+            const user = await this.repository.findById(userId)
+            if (!user) {
+            return null
+            }
+            const todoList = await this.repository.fetchTodo(userId)
+            return todoList 
+        } catch (error) {
+            console.error('Error fetching todoList:', error);
+            throw error;  
+        }
+    }
+
+    async deletingTask(TaskId: string, userId: string): Promise<ITodo | null> {
+        try {
+          const user = await this.repository.findById(userId);
+          if (!user) {
+            return null;
+          }
+          const deleteTask = await this.repository.updateTaskList(userId, TaskId);
+          if (!deleteTask) {
+            return null;
+          }
+      
+          return deleteTask;
+        } catch (error) {
+          console.error('Error during deleting task:', error);
+          throw error;
+        }
+      }
+
+      async strikeTask(TaskId: string, userId: string): Promise<ITodo | null> {
+        try {
+            const user = await this.repository.findById(userId);
+            if (!user) {
+              return null;
+            }
+            const strikedTask = await this.repository.updateTaskCompleation(userId, TaskId);
+            if (!strikedTask) {
+              return null;
+            }
+        
+            return strikedTask;
+          } catch (error) {
+            console.error('Error during deleting task:', error);
+            throw error;
+          }
     }
 }

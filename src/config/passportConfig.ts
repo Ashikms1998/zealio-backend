@@ -17,7 +17,6 @@ passport.use(
 async (accessToken, refreshToken, profile, done) => {
   try {
     const user = await createOrUpdateGoogleUser(profile)
-    console.log(user,"data from passport config here")
     done(null, user)
   } catch (error) {
     done(null, false);

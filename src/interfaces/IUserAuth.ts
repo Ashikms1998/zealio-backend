@@ -1,5 +1,7 @@
 import { Admin } from "../entities/Admin";
 import { User } from "../entities/User";
+import { ITodo } from "./ITodo";
+import { IToken } from "./IToken";
 
 export interface IUserAuth {
   findUserByEmail(email: string): Promise<User | null>;
@@ -18,5 +20,8 @@ export interface IUserAuth {
   allUsers(): Promise<User[] | null>;
   searchedUsers(searchTerm?: string): Promise<User[] | null>
   checkBlocked(userId:string,isBlocked:boolean): Promise<User | null>
-  
+  todoUpdate(userId:string,task:string):Promise<ITodo | null>
+  todoList(userId:string):Promise<ITodo[]|null>
+  deletingTask(TaskId:string,userId:string):Promise<ITodo | null>
+  strikeTask(TaskId:string,userId:string):Promise<ITodo | null>
 }
