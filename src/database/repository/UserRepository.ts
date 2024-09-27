@@ -267,25 +267,33 @@ export class UserRepository implements IUserRepository {
   }
   }
 
-  async isBlocked(userId:string,isBlocked:boolean): Promise<User | null>{
+  async isBlocked(userId: string, isBlocked: boolean): Promise<User | null> {
     try {
-      const doc = await UserModel.findById(userId)
-      if (!doc) {
+      
+      const updatedDoc = await UserModel.findByIdAndUpdate(
+        userId,
+        { isBlocked: isBlocked },
+        { new: true } 
+      );
+  
+      if (!updatedDoc) {
         return null;
       }
-
-      const user: User = {
-        id: doc._id.toString(),
-        firstName: doc.firstName,
-        lastName: doc.lastName ?? "",
-        email: doc.email,
-        password: doc.password ?? "",
-        verify_token: doc.verify_token ?? "",
-        verified: doc.verified,
-        isBlocked:isBlocked
+  
+  
+      const updatedUser: User = {
+        id: updatedDoc._id.toString(),
+        firstName: updatedDoc.firstName,
+        lastName: updatedDoc.lastName ?? "",
+        email: updatedDoc.email,
+        password: updatedDoc.password ?? "",
+        verify_token: updatedDoc.verify_token ?? "",
+        verified: updatedDoc.verified,
+        isBlocked: isBlocked
       };
   
-      return user;
+      return updatedUser;
+  
     } catch (error) {
       console.error("Error during blocking/unblocking user:", error);
       return null;

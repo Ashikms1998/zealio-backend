@@ -192,9 +192,12 @@ export class authService implements IUserAuth {
         const reqestedUsers = await this.repository.searchedUsers(searchTerm);
         return reqestedUsers
     }
+    
     async checkBlocked(userId:string,isBlocked:boolean): Promise<User | null>{
         try {
+            console.log(userId,isBlocked,"checkBlocked");
             const updatedUser = await this.repository.isBlocked(userId,isBlocked);
+            console.log(updatedUser,"checkBlockedupdatedUser");
             return updatedUser;
         } catch (error) {
             console.error('Error in service while toggling block status:', error);
