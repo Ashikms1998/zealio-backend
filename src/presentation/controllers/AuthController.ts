@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from "express";
 import { IUserAuth } from "../../interfaces/IUserAuth";
-import { error } from "console";
 import { SendMail } from "../../external-libraries/NodeMailer";
 
 export class authController {
@@ -66,9 +65,10 @@ export class authController {
   async onLoginUser(req: Request, res: Response, next: NextFunction) {
     try {
       const { email, password } = req.body;
-      console.log(email, password, "EP");
+      
       const user = await this.authService.loginUser(email, password);
       if (user?.id) {
+       
         const { accessToken, refreshToken } = this.authService.generateToken(
           user.id
         );
@@ -79,6 +79,12 @@ export class authController {
             secure: true,
             sameSite: "none",
             maxAge: 24 * 60 * 60 * 1000,
+          });
+          res.cookie("accessToken",accessToken, {
+            httpOnly: false,
+            secure: true,
+            sameSite: "none",
+            maxAge: 15 * 60 * 1000,
           });
           return res
             .status(200)
@@ -100,7 +106,7 @@ export class authController {
       const user = await this.authService.findUserByEmail(email);
       if (user) {
         const generateRandomString = (): string => {
-          return Math.floor(100000 + Math.random() * 900000).toString(); // Generate a 6-digit OTP
+          return Math.floor(100000 + Math.random() * 900000).toString();
         };
         const verify_token = generateRandomString();
         console.log("Generated OTP is ", verify_token);
@@ -278,13 +284,18 @@ async checkBlocked(req:Request,res:Response,next:NextFunction){
 async addTask(req:Request,res:Response,next:NextFunction){
   try {
     const {task,userId} = req.body;
+    
     const todoUpdate = await this.authService.todoUpdate(userId,task)
+
     if (todoUpdate) {
       res.status(201).json(todoUpdate);
     } else {
       res.status(404).json({ error: 'User not found' });
     }
-  } catch (error) {
+  } catch (error:any) {
+    if(error.status === 409){
+      return res.status(409).json({ error: 'Task already exists' });
+    }
     console.error('Error during adding todo task:', error);
     return res.status(500).json({ error: 'An error occurred while adding todo task.' });
   }
@@ -348,6 +359,24 @@ async updateTaskCompleation(req: Request, res: Response, next: NextFunction) {
     res.status(500).json({ message: "Error striking task" });
   }
 
+}
+
+async onUserFind(req:Request,res:Response,next:NextFunction){
+  try {
+    const userId = req.userId as string
+    const user = await this.authService.findUserById(userId);
+    let data = {
+      id:user?.id,
+      firstName:user?.firstName,
+      lastName:user?.lastName,
+      email:user?.email,
+      verified:user?.verified,
+      isBlocked:user?.isBlocked
+    }
+    return res.json(data)
+  } catch (error) {
+    console.log(error,"Error finding the user from onUserFind");
+  }
 }
 
 }

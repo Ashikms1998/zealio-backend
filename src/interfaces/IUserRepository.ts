@@ -21,4 +21,5 @@ export interface IUserRepository{
     fetchTodo(userId:string):Promise<ITodo[]| null>
     updateTaskList(TaskId:string,userId:string):Promise<ITodo| null>
     updateTaskCompleation(TaskId:string,userId:string):Promise<ITodo| null>
+    findOne(userId: string, task: string): Promise<ITodo | null>;
 }

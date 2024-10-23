@@ -237,7 +237,7 @@ export class UserRepository implements IUserRepository {
   async createOrUpdateGoogleUser(profile: any): Promise<any> {
     try {
     const existingUser = await UserModel.findOne({ googleId: profile.id });
-    console.log(existingUser, "eX");
+    console.log(existingUser, "existing User");
     if (existingUser) {
       return existingUser;
     } else {
@@ -302,11 +302,14 @@ export class UserRepository implements IUserRepository {
 
   async updateTodo(userId:string,task:string): Promise<ITodo | null>{
     try {
+
     const newTodo = new TodoModel({ 
       task:task,
       completed:false,
       userId:userId
      });
+
+
     await newTodo.save();
     return newTodo
     } catch (error) {
@@ -317,7 +320,8 @@ export class UserRepository implements IUserRepository {
 
   async fetchTodo(userId:string): Promise<ITodo[] | null>{
     try {
-      let taskList = TodoModel.find({userId:userId})
+      
+      let taskList = TodoModel.find({userId:userId}).sort({ completed: 1 });
       return taskList;
     } catch (error) {
       console.error("Error during fetching todo task:", error);
@@ -361,6 +365,16 @@ async updateTaskCompleation(userId: string, TaskId: string): Promise<ITodo | nul
     return null;
   }
 
+}
+
+async findOne(userId: string, task: string): Promise<ITodo | null> {
+  try {
+    const existingTask = await TodoModel.findOne({ userId, task });
+    return existingTask;
+  } catch (error) {
+    console.error("Error checking duplicate todo task:", error);
+    return null;
+  }
 }
   
 }

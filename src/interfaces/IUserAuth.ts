@@ -5,6 +5,7 @@ import { IToken } from "./IToken";
 
 export interface IUserAuth {
   findUserByEmail(email: string): Promise<User | null>;
+  findUserById(userId:string):Promise<User|null>
   registerUser(data: Partial<User>, type?: string): Promise<User>;
   verifyUser(email: string, token: string): Promise<User | null>;
   loginUser(email: string, password: string): Promise<User | null>;

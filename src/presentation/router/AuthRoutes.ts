@@ -7,6 +7,7 @@ import { Mailer } from "../../external-libraries/mailer";
 import { Bcrypt } from "../../external-libraries/bcrypt";
 import { Token } from "../../external-libraries/Token";
 import passport from "passport";
+import { validateToken } from "../middleware/validateToken";
 const repository = new UserRepository();
 const bcrypt = new Bcrypt();
 const mailer = new Mailer();
@@ -34,9 +35,11 @@ router.get(
 );
 router.get("/users/search", controller.userQuery.bind(controller));
 router.put("/users/block-unblock", controller.checkBlocked.bind(controller));
-router.post("/addtask", controller.addTask.bind(controller));
+router.post("/addtask",validateToken, controller.addTask.bind(controller));
 router.get("/fetchTodo", controller.fetchingTasks.bind(controller));
 router.delete("/deleteTask", controller.deleteTask.bind(controller));
 router.put("/updateTaskCompleation",controller.updateTaskCompleation.bind(controller));
+router.get("/userDetails",validateToken,controller.onUserFind.bind(controller))
+
 
 export default router;
