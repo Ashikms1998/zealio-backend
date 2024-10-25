@@ -23,48 +23,40 @@ const io = new Server(server, {
     }
 });
 
-/*Socket io connecetion*/
 
-const userSocketMap = new Map();
-
-io.on('connection',(socket)=>{
-    console.log('User connected:', socket.id);
-
-    socket.on('user_connected',(userId)=>{
-        userSocketMap.set(userId,socket.id)
-    });
-
-    socket.on('join chat',async(chatData)=>{
-        try {
-            const {chatId} = chatData;
-            if(chatId){
-                socket.join(`chat_${chatId}`);
-            }else{
-                console.log("Chat Id is missing");
-            }
-        } catch (error) {
-            console.log("Error in join chat:",error);
-        }
-    })
-
-    socket.on('chat message',async(messageData)=>{
-        try {
-            const {chatId,senderId,receiverId,image,audio,call,messageText,createdAt} = messageData;
-            if(chatId && senderId && receiverId && createdAt || messageText || image || audio){
-                const receiverSocketId = userSocketMap.get(receiverId);
-                io.to(receiverSocketId).emit('chat message',{chatId, senderId, image, messageText, audio, call, createdAt})
-            }else{
-                console.error("Message data is incomplete");
-            }
-        } catch (error) {
-            console.error("Error in chat message:", error);
-        }
-    })
-
-    socket.on('disconnect',()=>{
-        console.log("User Disconnected");
-    });
+app.use((req, res, next) => {
+    req.io = io;
+    next();
 });
+
+const userSocketMap:Record<string,string> = {}
+export const getReceiverSocketId = (receiverId:string)=>{
+    return userSocketMap[receiverId];
+}
+
+
+io.on("connection",(socket)=>{
+    console.log("A user is connected",socket.id);
+
+    socket.on("disconnect",()=>{
+        console.log("user disconnected", socket.id);
+    });
+
+    const userId = socket.handshake.query.userId
+
+    if (userId != "undefined") userSocketMap[userId as string] = socket.id;
+
+    io.emit("getOnlineUsers",Object.keys(userSocketMap));
+    socket.on("disconnect",()=>{
+        console.log("user disconnected",socket.id);
+        delete userSocketMap.userId;
+        io.emit("getOnlineUsers",Object.keys(userSocketMap));
+
+    })
+
+})
+
+
 
 mongoose.connect(process.env.MONGODB_STRING as string)
 .then(()=>{
@@ -91,6 +83,6 @@ app.get("/api/home",(req,res)=>{
     res.json({message:"Hello World!"});
 });
 
-app.listen(PORT,()=>{
+server.listen(PORT,()=>{
     console.log(`Server connected on port ${PORT}`)
 }) 

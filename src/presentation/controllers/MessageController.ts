@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { IMessage } from "../../interfaces/IMessage";
+import { getReceiverSocketId } from "../../app";
 
 export class MessageController {
   private messageService: IMessage;
@@ -56,6 +57,10 @@ export class MessageController {
         senderId,
         message
       );
+      const receiverSocketId =  getReceiverSocketId(Id)
+      req.io.to(receiverSocketId).emit("newMessage",response)
+
+
       if (response) {
         return res
           .status(200)
@@ -82,7 +87,6 @@ export class MessageController {
         userToChatId,
         userId
       );
-      // console.log(response, "response of getmessages");
       if (!response) {
         return res.status(404).json({ error: "Conversation not found" });
       }

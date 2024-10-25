@@ -8,6 +8,7 @@ import { User as UserModel } from "../models/UserSchema";
 import { json } from "stream/consumers";
 import { convertToConversation } from "../../presentation/utils/converters";
 import { response } from "express";
+// import { getReceiverSocketId } from "../../app";
 export class MessageRepository implements IMessageRepository {
   async findUsers(userId: string): Promise<User[] | null> {
     try {
@@ -57,7 +58,9 @@ export class MessageRepository implements IMessageRepository {
       conversation.messages.push(newMessage.id);
       
       await Promise.all([conversation.save(),newMessage.save()]);
-      
+    
+
+
       // const conversationObj = conversation.toObject() as {
       //   _id: Types.ObjectId;
       //   participants: Types.ObjectId[];
