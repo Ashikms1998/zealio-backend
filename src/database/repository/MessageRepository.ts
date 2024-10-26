@@ -6,7 +6,6 @@ import { Conversation as ConversationModel } from "../models/ConversationSchema"
 import { Message as MessageModel } from "../models/MessageSchema";
 import { User as UserModel } from "../models/UserSchema";
 import { json } from "stream/consumers";
-import { convertToConversation } from "../../presentation/utils/converters";
 import { response } from "express";
 // import { getReceiverSocketId } from "../../app";
 export class MessageRepository implements IMessageRepository {

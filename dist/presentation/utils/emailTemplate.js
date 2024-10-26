@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = emailTemplate;
+const server_url = process.env.SERVER_URL;
 function emailTemplate(firstName, lastName, email, token) {
     return `<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional //EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
     <html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
@@ -123,7 +124,7 @@ function emailTemplate(firstName, lastName, email, token) {
     
                     <!--[if (mso)|(IE)]><td align="center" width="600" style="background-color: #030014;width: 600px;padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;" valign="top"><![endif]-->
                     <div class="u-col u-col-100" style="max-width: 320px;min-width: 600px;display: table-cell;vertical-align: top;">
-                      <div style="background-color: #030014;height: 100%;width: 100% !important;">
+                      <div style="background-color: #faf7f7;height: 100%;width: 100% !important;">
                         <!--[if (!mso)&(!IE)]><!-->
                         <div style="box-sizing: border-box; height: 100%; padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;">
                           <!--<![endif]-->
@@ -137,9 +138,14 @@ function emailTemplate(firstName, lastName, email, token) {
                                     <tr>
                                       <td align="center" style="padding: 0; margin: 0; vertical-align: middle;">
                                         <a href="${process.env.CLIENT_URL}" target="_blank" style="display: inline-block;">
-                                        atta  
-                                        
-                                    
+                                    <img
+                                            align="center"
+                                            border="0"
+                                            src="https://firebasestorage.googleapis.com/v0/b/zealio-3b830.appspot.com/o/image.png?alt=media&token=e0b78418-bd1a-4e75-8ffe-ac9dda761075"
+                                            alt="Zealio-Logo"
+                                            title="Zealio-Logo"
+                                            style="outline: none; text-decoration: none; -ms-interpolation-mode: bicubic; clear: both; display: inline-block !important; border: none; height: auto; float: none; width: 34%; max-width: 190px;"/>  
+                                        </a>
                                         
                                       </td>
                                     </tr>
@@ -280,7 +286,7 @@ function emailTemplate(firstName, lastName, email, token) {
     
                                   <div align="center">
                                     <!--[if mso]><v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="" style="height:46px; v-text-anchor:middle; width:235px;" arcsize="8.5%"  stroke="f" fillcolor="#013f7e"><w:anchorlock/><center style="color:#fdf8f8;"><![endif]-->
-                                    <a href=${process.env.PORT}/auth/verify-email?email=${email}&token=${token} target="_blank" class="v-button" style="box-sizing: border-box;display: inline-block;text-decoration: none;-webkit-text-size-adjust: none;text-align: center;color: #fdf8f8; background-color: #013f7e; border-radius: 4px;-webkit-border-radius: 4px; -moz-border-radius: 4px; width:auto; max-width:100%; overflow-wrap: break-word; word-break: break-word; word-wrap:break-word; mso-border-alt: none;font-size: 14px;">
+                                    <a href=${server_url}/auth/verify-email?email=${email}&token=${token} target="_blank" class="v-button" style="box-sizing: border-box;display: inline-block;text-decoration: none;-webkit-text-size-adjust: none;text-align: center;color: #fdf8f8; background-color: #013f7e; border-radius: 4px;-webkit-border-radius: 4px; -moz-border-radius: 4px; width:auto; max-width:100%; overflow-wrap: break-word; word-break: break-word; word-wrap:break-word; mso-border-alt: none;font-size: 14px;">
                                       <span style="display:block;padding:14px 44px 13px;line-height:120%;"><span style="font-size: 16px; line-height: 19.2px;"><strong><span style="line-height: 19.2px; font-size: 16px;">VERIFY YOUR EMAIL</span></strong>
                                         </span>
                                       </span>
