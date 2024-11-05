@@ -53,28 +53,11 @@ export class MessageRepository implements IMessageRepository {
         receiverId: Id,
         message: message,
       });
-      // console.log(conversation,"conversation",newMessage,'new Message')
+      
       conversation.messages.push(newMessage.id);
       
       await Promise.all([conversation.save(),newMessage.save()]);
     
-
-
-      // const conversationObj = conversation.toObject() as {
-      //   _id: Types.ObjectId;
-      //   participants: Types.ObjectId[];
-      //   messages: Types.ObjectId[];
-      //   createdAt: Date;
-      //   updatedAt: Date;
-      // };
-      // const result: Conversation = {
-      //   id: conversationObj._id.toString(),
-      //   participants: conversationObj.participants.map(id => id.toString()),
-      //   messages: conversationObj.messages.map(id => id.toString()),
-      //   createdAt: conversationObj.createdAt,
-      //   updatedAt: conversationObj.updatedAt
-      // };
-      console.log(newMessage.toObject() as Message,"This is result of whole conversation")
       return newMessage.toObject() as Message;
       
     } catch (error) {
@@ -88,9 +71,7 @@ export class MessageRepository implements IMessageRepository {
       
       const conversation = await ConversationModel.findOne({
         participants:{$all:[userToChatId,userId]},
-      }).populate("messages")
-      console.log(conversation,'bro this is conversation');
-      // console.log(conversation?conversation.toObject() as Conversation:'bro this is conversation');
+      }).populate("messages") 
 
       return conversation ? (conversation.toObject() as Conversation) : null;
 

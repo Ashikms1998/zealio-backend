@@ -63,21 +63,7 @@ class MessageRepository {
                 // console.log(conversation,"conversation",newMessage,'new Message')
                 conversation.messages.push(newMessage.id);
                 yield Promise.all([conversation.save(), newMessage.save()]);
-                // const conversationObj = conversation.toObject() as {
-                //   _id: Types.ObjectId;
-                //   participants: Types.ObjectId[];
-                //   messages: Types.ObjectId[];
-                //   createdAt: Date;
-                //   updatedAt: Date;
-                // };
-                // const result: Conversation = {
-                //   id: conversationObj._id.toString(),
-                //   participants: conversationObj.participants.map(id => id.toString()),
-                //   messages: conversationObj.messages.map(id => id.toString()),
-                //   createdAt: conversationObj.createdAt,
-                //   updatedAt: conversationObj.updatedAt
-                // };
-                console.log(newMessage.toObject(), "This is result of whole conversation");
+               
                 return newMessage.toObject();
             }
             catch (error) {
