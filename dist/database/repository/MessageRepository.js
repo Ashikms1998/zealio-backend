@@ -60,10 +60,8 @@ class MessageRepository {
                     receiverId: Id,
                     message: message,
                 });
-                // console.log(conversation,"conversation",newMessage,'new Message')
                 conversation.messages.push(newMessage.id);
                 yield Promise.all([conversation.save(), newMessage.save()]);
-               
                 return newMessage.toObject();
             }
             catch (error) {
@@ -78,8 +76,6 @@ class MessageRepository {
                 const conversation = yield ConversationSchema_1.Conversation.findOne({
                     participants: { $all: [userToChatId, userId] },
                 }).populate("messages");
-                console.log(conversation, 'bro this is conversation');
-                // console.log(conversation?conversation.toObject() as Conversation:'bro this is conversation');
                 return conversation ? conversation.toObject() : null;
             }
             catch (error) {

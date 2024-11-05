@@ -15,17 +15,6 @@ class MessageController {
     constructor(messageService) {
         this.messageService = messageService;
     }
-    // async messageSend(req: Request, res: Response, next: NextFunction) {
-    //     try {
-    //        const {message} = req.body;
-    //        const {id:receiverId} = req.params;
-    //        const {userId:senderId} = req;
-    //        const response = await this.messageService.sendingMessage(message,receiverId,senderId)
-    //     } catch (error) {
-    //         console.error('Error sending message:', error);
-    //         res.status(500).json({ message: 'Failed to send message' });
-    //     }
-    // }
     userList(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -86,7 +75,6 @@ class MessageController {
                 if (!response) {
                     return res.status(404).json({ error: "Conversation not found" });
                 }
-                console.log(response, "This is the result of passing things");
                 return res.status(200).json(response);
             }
             catch (error) {
