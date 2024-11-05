@@ -33,12 +33,12 @@ jobs:
       - name: Run Docker Container
         run: |
           docker run -d -p 3001:3001 --name zealio-container \
-             -e MONGODB_STRING= '${{ secrets.MONGODB_STRING }}' \
-             -e PORT= '${{ secrets.PORT }}' \
-             -e CLIENT_URL= '${{ secrets.CLIENT_URL }}' \
-             -e SERVER_URL= '${{ secrets.SERVER_URL }}' \
-             -e JWT_SECRET= '${{ secrets.JWT_SECRET }}' \
-             -e REFRESH_TOKEN_SECRET= '${{ secrets.REFRESH_TOKEN_SECRET }}' \
-             -e GOOGLE_CLIENT_ID= '${{ secrets.GOOGLE_CLIENT_ID }}' \
-             -e GOOGLE_CLIENT_SECRET= '${{ secrets.GOOGLE_CLIENT_SECRET }}' \
+             -e MONGODB_STRING= `${{ secrets.MONGODB_STRING }}` \
+             -e PORT= `${{ secrets.PORT }}` \
+             -e CLIENT_URL= `${{ secrets.CLIENT_URL }}` \
+             -e SERVER_URL= `${{ secrets.SERVER_URL }}` \
+             -e JWT_SECRET= `${{ secrets.JWT_SECRET }}` \
+             -e REFRESH_TOKEN_SECRET= `${{ secrets.REFRESH_TOKEN_SECRET }}` \
+             -e GOOGLE_CLIENT_ID= `${{ secrets.GOOGLE_CLIENT_ID }}` \
+             -e GOOGLE_CLIENT_SECRET= `${{ secrets.GOOGLE_CLIENT_SECRET }}` \
              ashikms/zealio:latest
