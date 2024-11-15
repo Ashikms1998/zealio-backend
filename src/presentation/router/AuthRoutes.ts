@@ -36,10 +36,10 @@ router.get(
 router.get("/users/search", controller.userQuery.bind(controller));
 router.put("/users/block-unblock", controller.checkBlocked.bind(controller));
 router.post("/addtask",validateToken, controller.addTask.bind(controller));
-router.get("/fetchTodo", controller.fetchingTasks.bind(controller));
-router.delete("/deleteTask", controller.deleteTask.bind(controller));
-router.put("/updateTaskCompleation",controller.updateTaskCompleation.bind(controller));
+router.get("/fetchTodo",validateToken, controller.fetchingTasks.bind(controller));
+router.delete("/deleteTask",validateToken, controller.deleteTask.bind(controller));
+router.put("/updateTaskCompleation",validateToken,controller.updateTaskCompleation.bind(controller));
 router.get("/userDetails",validateToken,controller.onUserFind.bind(controller))
-
+router.post("/logout",controller.onLogout.bind(controller));
 
 export default router;

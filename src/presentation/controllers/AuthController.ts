@@ -4,7 +4,7 @@ import { SendMail } from "../../external-libraries/NodeMailer";
 
 export class authController {
   private authService: IUserAuth;
-  
+
   constructor(authService: IUserAuth) {
     this.authService = authService;
   }
@@ -16,11 +16,9 @@ export class authController {
 
       if (existingUser) {
         if (!existingUser.verified) {
-          return res
-            .status(409)
-            .json({
-              error: "Verification Link Already Send to The Given Mail",
-            });
+          return res.status(409).json({
+            error: "Verification Link Already Send to The Given Mail",
+          });
         }
         return res
           .status(409)
@@ -65,14 +63,13 @@ export class authController {
   async onLoginUser(req: Request, res: Response, next: NextFunction) {
     try {
       const { email, password } = req.body;
-      
+
       const user = await this.authService.loginUser(email, password);
       if (user?.id) {
-       
         const { accessToken, refreshToken } = this.authService.generateToken(
           user.id
         );
-        
+
         if (accessToken && refreshToken) {
           res.cookie("refreshToken", refreshToken, {
             httpOnly: true,
@@ -80,7 +77,7 @@ export class authController {
             sameSite: "none",
             maxAge: 24 * 60 * 60 * 1000,
           });
-          res.cookie("accessToken",accessToken, {
+          res.cookie("accessToken", accessToken, {
             httpOnly: false,
             secure: true,
             sameSite: "none",
@@ -102,7 +99,7 @@ export class authController {
 
   async ForgotPassword(req: Request, res: Response, next: NextFunction) {
     try {
-      const {email} = req.body;
+      const { email } = req.body;
       const user = await this.authService.findUserByEmail(email);
       if (user) {
         const generateRandomString = (): string => {
@@ -110,14 +107,14 @@ export class authController {
         };
         const verify_token = generateRandomString();
         console.log("Generated OTP is ", verify_token);
-  
+
         const mailer = await SendMail.sendmail(user.email, verify_token);
         const otpUpdate = await this.authService.otpUpdate(email, verify_token);
         console.log(otpUpdate, "kasfjsd");
-  
+
         return res.status(200).json({ message: "Email Exist" });
       } else {
-          return res.status(404).json({ message: "email does not exist" });
+        return res.status(404).json({ message: "email does not exist" });
       }
     } catch (error) {
       console.log(error);
@@ -125,258 +122,334 @@ export class authController {
   }
   async passwordReset(req: Request, res: Response, next: NextFunction) {
     try {
-        const body = req.body;
-        console.log(body, "body exist");
+      const body = req.body;
+      console.log(body, "body exist");
 
-        const verified = await this.authService.checkingOtp(body.email, body.verify_token);
-        console.log(verified, "kasfjsd");
+      const verified = await this.authService.checkingOtp(
+        body.email,
+        body.verify_token
+      );
+      console.log(verified, "kasfjsd");
 
-        if (verified) {
-            return res.status(200).json({success: true, message: "Email and OTP verification successfull" });
-        } else {
-            return res.status(400).json({success: false, message: "Incorrect OTP" });
-        }
+      if (verified) {
+        return res
+          .status(200)
+          .json({
+            success: true,
+            message: "Email and OTP verification successfull",
+          });
+      } else {
+        return res
+          .status(400)
+          .json({ success: false, message: "Incorrect OTP" });
+      }
     } catch (error) {
-        console.error(error);
-        return res.status(500).json({success: false, message: "An error occurred during OTP verification" });
+      console.error(error);
+      return res
+        .status(500)
+        .json({
+          success: false,
+          message: "An error occurred during OTP verification",
+        });
     }
-}
+  }
 
-async passwordChanging(req: Request, res: Response, next: NextFunction) {
-  try {
-    const { email, password } = req.body;
-    console.log({ email, password }, "password exist");
+  async passwordChanging(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { email, password } = req.body;
+      console.log({ email, password }, "password exist");
 
-    const changingPass = await this.authService.changePassword(email, password);
-    console.log(changingPass, "kasfjsd");
+      const changingPass = await this.authService.changePassword(
+        email,
+        password
+      );
+      console.log(changingPass, "kasfjsd");
 
-    if (changingPass) {
-      return res.status(200).json({ message: "Password changed successfully" });
-    } else {
-      return res.status(400).json({ message: "Password change failed" });
+      if (changingPass) {
+        return res
+          .status(200)
+          .json({ message: "Password changed successfully" });
+      } else {
+        return res.status(400).json({ message: "Password change failed" });
+      }
+    } catch (error) {
+      console.error("Error changing password:", error);
+      return res
+        .status(500)
+        .json({
+          message: "An error occurred while changing password",
+          errorDetails: error instanceof Error ? error.message : String(error),
+        });
     }
-  } catch (error) {
-    console.error('Error changing password:', error);
-    return res.status(500).json({ message: "An error occurred while changing password", 
-    errorDetails: error instanceof Error ? error.message : String(error)});
   }
-}
 
+  async adminLogin(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { email, password } = req.body;
+      console.log(email, password, "admin Em and pass");
 
-async adminLogin(req: Request, res: Response, next: NextFunction) {
-  try {
-    const { email, password } = req.body;
-    console.log(email, password, "admin Em and pass");
-
-    const admin = await this.authService.adminLogin(email, password);
-    if (admin) {
-      return res.status(200).json({ message: "Admin Sign-in successful" });
-    } else {
-      return res.status(401).json({ error: "Invalid credentials" });
+      const admin = await this.authService.adminLogin(email, password);
+      if (admin) {
+        return res.status(200).json({ message: "Admin Sign-in successful" });
+      } else {
+        return res.status(401).json({ error: "Invalid credentials" });
+      }
+    } catch (error) {
+      console.error("Error during admin login:", error);
+      return res
+        .status(500)
+        .json({
+          message: "An error occurred during sign-in",
+          errorDetails: error instanceof Error ? error.message : String(error),
+        });
     }
-  } catch (error) {
-    console.error('Error during admin login:', error);
-    return res.status(500).json({ message: "An error occurred during sign-in",
-    errorDetails: error instanceof Error ? error.message : String(error)});
-  }
-}
-
-async userList(req: Request, res: Response, next: NextFunction) {
-  try {
-    const response = await this.authService.allUsers();
-    res.status(200).json({ message: "Users retrieved successfully", data: response });
-  } catch (error) {
-      res.status(500).json({ message: "An error occurred while retrieving users",
-        errorDetails: error instanceof Error ? error.message : String(error)});
   }
 
-}
-
-async userQuery(req: Request, res: Response, next: NextFunction){
-  try {
-    const searchTerm = req.query.q as string;
-    console.log(searchTerm,"searchTerm");
-    const response = await this.authService.searchedUsers(searchTerm);
-    res.status(200).json({ message: "Users retrieved successfully", data: response });
-  } catch (error) {
-    res.status(500).json({ message: "An error occurred while retrieving searched users",
-      errorDetails: error instanceof Error ? error.message : String(error)});
-
+  async userList(req: Request, res: Response, next: NextFunction) {
+    try {
+      const response = await this.authService.allUsers();
+      res
+        .status(200)
+        .json({ message: "Users retrieved successfully", data: response });
+    } catch (error) {
+      res
+        .status(500)
+        .json({
+          message: "An error occurred while retrieving users",
+          errorDetails: error instanceof Error ? error.message : String(error),
+        });
+    }
   }
-}
 
-async otpResend(req:Request,res:Response,next:NextFunction){
-  try {
-    const {email} = req.body;
-    const user = await this.authService.findUserByEmail(email);
-    if (user) {
-      const generateRandomString = (): string => {
-        return Math.floor(100000 + Math.random() * 900000).toString(); // Generate a 6-digit OTP
-      };
-      const verify_token = generateRandomString();
-      console.log("Generated OTP is ", verify_token);
+  async userQuery(req: Request, res: Response, next: NextFunction) {
+    try {
+      const searchTerm = req.query.q as string;
+      console.log(searchTerm, "searchTerm");
+      const response = await this.authService.searchedUsers(searchTerm);
+      res
+        .status(200)
+        .json({ message: "Users retrieved successfully", data: response });
+    } catch (error) {
+      res
+        .status(500)
+        .json({
+          message: "An error occurred while retrieving searched users",
+          errorDetails: error instanceof Error ? error.message : String(error),
+        });
+    }
+  }
 
-      const mailer = await SendMail.sendmail(user.email, verify_token);
-      const otpUpdate = await this.authService.otpUpdate(email, verify_token);
-      console.log(otpUpdate, "kasfjsd");
+  async otpResend(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { email } = req.body;
+      const user = await this.authService.findUserByEmail(email);
+      if (user) {
+        const generateRandomString = (): string => {
+          return Math.floor(100000 + Math.random() * 900000).toString(); // Generate a 6-digit OTP
+        };
+        const verify_token = generateRandomString();
+        console.log("Generated OTP is ", verify_token);
 
-      return res.status(200).json({ message: "Email Exist" });
-    } else {
+        const mailer = await SendMail.sendmail(user.email, verify_token);
+        const otpUpdate = await this.authService.otpUpdate(email, verify_token);
+        console.log(otpUpdate, "kasfjsd");
+
+        return res.status(200).json({ message: "Email Exist" });
+      } else {
         return res.status(404).json({ message: "email does not exist" });
+      }
+    } catch (error) {
+      console.log(error);
     }
-  } catch (error) {
-    console.log(error);
   }
-}
 
+  async authCallbackController(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const user = req.user as any;
 
-async authCallbackController(req:Request,res:Response,next:NextFunction)
-{
-  try {
-    const user = req.user as any
+      if (!user) {
+        return res.status(401).json({ message: "Authentication failed" });
+      }
 
-    if (!user) {
-      return res.status(401).json({message: "Authentication failed"})
-    }
-    
-    const {accessToken, refreshToken} = this.authService.generateToken(
-      user.id
-    )
+      const { accessToken, refreshToken } = this.authService.generateToken(
+        user.id
+      );
 
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "none",
-      maxAge: 24 * 60 * 60 * 1000,
-    })
-    res.cookie("accessToken", accessToken, {
-      httpOnly: false,
-      secure: true,
-      sameSite: "none",
-      maxAge:15 * 60 * 1000,
-    })
-    return res.redirect(`${process.env.CLIENT_URL}/home`);
-  } catch (error) {
-    next(error)
-  }
-}
-
-async checkBlocked(req:Request,res:Response,next:NextFunction){
-  try {
-    const { userId, isBlocked } = req.body;
-    console.log(userId,isBlocked,"user id send from front for blocking");
-    const updatedUser = await this.authService.checkBlocked(userId,isBlocked)
-    if (updatedUser) {
-      return res.status(200).json({
-        message: `User ${updatedUser.isBlocked ? 'blocked' : 'unblocked'} successfully`,
-        data: updatedUser
+      res.cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "none",
+        maxAge: 24 * 60 * 60 * 1000,
       });
-    } else {
-      return res.status(404).json({ message: "User not found" });
+      res.cookie("accessToken", accessToken, {
+        httpOnly: false,
+        secure: true,
+        sameSite: "none",
+        maxAge: 15 *60* 1000,
+      });
+      return res.redirect(`${process.env.CLIENT_URL}/home?accessToken=${accessToken}`);
+
+    } catch (error) {
+      next(error);
     }
-  } catch (error) {
-    console.error('Error during blocking/unblocking user:', error);
-    return res.status(500).json({ error: 'An error occurred while blocking/unblocking the user.' });
-  
-  }
-}
-
-async addTask(req:Request,res:Response,next:NextFunction){
-  try {
-    const {task,userId} = req.body;
-    
-    const todoUpdate = await this.authService.todoUpdate(userId,task)
-
-    if (todoUpdate) {
-      res.status(201).json(todoUpdate);
-    } else {
-      res.status(404).json({ error: 'User not found' });
-    }
-  } catch (error:any) {
-    if(error.status === 409){
-      return res.status(409).json({ error: 'Task already exists' });
-    }
-    console.error('Error during adding todo task:', error);
-    return res.status(500).json({ error: 'An error occurred while adding todo task.' });
-  }
-}
-
-async fetchingTasks(req:Request,res:Response,next:NextFunction){
-  try {
-    const userId = req.query.userId
-    const todoList = await this.authService.todoList(userId as string)
-    if (todoList) {
-      res.status(201).json(todoList);
-    } else {
-      res.status(404).json({ error: 'todoList not found' });
-    }
-  } catch (error) {
-    console.error('Error during fetching todoList:', error);
-    return res.status(500).json({ error: 'An error occurred during fetching todoList.' });
-  }
-}
-
-async deleteTask(req: Request, res: Response, next: NextFunction) {
-  try {
-    const TaskId = req.query._id as string;
-    const userId = req.query.userId as string;
-
-    if (!TaskId || !userId) {
-      return res.status(400).json({ message: "Task ID or User ID is missing" });
-    }
-
-    const deletedTask = await this.authService.deletingTask(TaskId, userId);
-
-    if (!deletedTask) {
-      return res.status(404).json({ message: "Task not found or unauthorized action" });
-    }
-
-    res.status(200).json({ message: "Task deleted successfully", deletedTask });
-  } catch (error) {
-    console.log('Error during deleting task', error);
-    res.status(500).json({ message: "Error deleting task" });
-  }
-}
-
-async updateTaskCompleation(req: Request, res: Response, next: NextFunction) {
-  try {
-    const TaskId = req.query._id as string;
-    const userId = req.query.userId as string;
-
-    if (!TaskId || !userId) {
-      return res.status(400).json({ message: "Task ID or User ID is missing" });
-    }
-
-    const taskStriked = await this.authService.strikeTask(TaskId, userId);
-
-    if (!taskStriked) {
-      return res.status(404).json({ message: "Task not found or unauthorized action" });
-    }
-
-    res.status(200).json({ message: "Task deleted successfully", taskStriked });
-  } catch (error) {
-    console.log('Error during striking task', error);
-    res.status(500).json({ message: "Error striking task" });
   }
 
-}
-
-async onUserFind(req:Request,res:Response,next:NextFunction){
-  try {
-    const userId = req.userId as string
-    const user = await this.authService.findUserById(userId);
-    let data = {
-      id:user?.id,
-      firstName:user?.firstName,
-      lastName:user?.lastName,
-      email:user?.email,
-      verified:user?.verified,
-      isBlocked:user?.isBlocked
+  async checkBlocked(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { userId, isBlocked } = req.body;
+      console.log(userId, isBlocked, "user id send from front for blocking");
+      const updatedUser = await this.authService.checkBlocked(
+        userId,
+        isBlocked
+      );
+      if (updatedUser) {
+        return res.status(200).json({
+          message: `User ${
+            updatedUser.isBlocked ? "blocked" : "unblocked"
+          } successfully`,
+          data: updatedUser,
+        });
+      } else {
+        return res.status(404).json({ message: "User not found" });
+      }
+    } catch (error) {
+      console.error("Error during blocking/unblocking user:", error);
+      return res
+        .status(500)
+        .json({
+          error: "An error occurred while blocking/unblocking the user.",
+        });
     }
-    return res.json(data)
-  } catch (error) {
-    console.log(error,"Error finding the user from onUserFind");
   }
-}
 
+  async addTask(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { task, userId } = req.body;
+
+      const todoUpdate = await this.authService.todoUpdate(userId, task);
+
+      if (todoUpdate) {
+        res.status(201).json(todoUpdate);
+      } else {
+        res.status(404).json({ error: "User not found" });
+      }
+    } catch (error: any) {
+      if (error.status === 409) {
+        return res.status(409).json({ error: "Task already exists" });
+      }
+      console.error("Error during adding todo task:", error);
+      return res
+        .status(500)
+        .json({ error: "An error occurred while adding todo task." });
+    }
+  }
+
+  async fetchingTasks(req: Request, res: Response, next: NextFunction) {
+    try {
+      const userId = req.query.userId;
+      console.log("🤯", userId);
+      const todoList = await this.authService.todoList(userId as string);
+      console.log("🤯", todoList);
+
+      if (todoList) {
+        res.status(201).json(todoList);
+      } else {
+        res.status(404).json({ error: "todoList not found" });
+      }
+    } catch (error) {
+      console.error("Error during fetching todoList:", error);
+      return res
+        .status(500)
+        .json({ error: "An error occurred during fetching todoList." });
+    }
+  }
+
+  async deleteTask(req: Request, res: Response, next: NextFunction) {
+    try {
+      const TaskId = req.query._id as string;
+      const userId = req.query.userId as string;
+
+      if (!TaskId || !userId) {
+        return res
+          .status(400)
+          .json({ message: "Task ID or User ID is missing" });
+      }
+
+      const deletedTask = await this.authService.deletingTask(TaskId, userId);
+
+      if (!deletedTask) {
+        return res
+          .status(404)
+          .json({ message: "Task not found or unauthorized action" });
+      }
+
+      res
+        .status(200)
+        .json({ message: "Task deleted successfully", deletedTask });
+    } catch (error) {
+      console.log("Error during deleting task", error);
+      res.status(500).json({ message: "Error deleting task" });
+    }
+  }
+
+  async updateTaskCompleation(req: Request, res: Response, next: NextFunction) {
+    try {
+      const TaskId = req.query._id as string;
+      const userId = req.query.userId as string;
+
+      if (!TaskId || !userId) {
+        return res
+          .status(400)
+          .json({ message: "Task ID or User ID is missing" });
+      }
+
+      const taskStriked = await this.authService.strikeTask(TaskId, userId);
+
+      if (!taskStriked) {
+        return res
+          .status(404)
+          .json({ message: "Task not found or unauthorized action" });
+      }
+
+      res
+        .status(200)
+        .json({ message: "Task deleted successfully", taskStriked });
+    } catch (error) {
+      console.log("Error during striking task", error);
+      res.status(500).json({ message: "Error striking task" });
+    }
+  }
+
+  async onUserFind(req: Request, res: Response, next: NextFunction) {
+    try {
+      const userId = req.userId as string;
+      const user = await this.authService.findUserById(userId);
+      let data = {
+        id: user?.id,
+        firstName: user?.firstName,
+        lastName: user?.lastName,
+        email: user?.email,
+        verified: user?.verified,
+        isBlocked: user?.isBlocked,
+      };
+      return res.json(data);
+    } catch (error) {
+      console.log(error, "Error finding the user from onUserFind");
+    }
+  }
+
+  async onLogout(req:Request,res:Response,next:NextFunction){
+    try {
+      res.clearCookie("accessToken")
+      res.clearCookie("refreshToken")
+      return res.status(200).json({success: true,message:"User Logged Out Successfully"})
+    } catch (error) {
+      console.log("Error while logging out",error);
+      next(error)
+    }
+  }
 }

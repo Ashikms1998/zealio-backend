@@ -42,6 +42,7 @@ io.on("connection", (socket) => {
 
   const userId = socket.handshake.query.userId;
   userIdSocketIdMap.set(userId, socket.id);
+  console.log(userIdSocketIdMap,"😯😯");
   if (userId != "undefined") userSocketMap[userId as string] = socket.id;
 
   io.emit("getOnlineUsers", Object.keys(userSocketMap));
@@ -101,15 +102,18 @@ io.on("connection", (socket) => {
   });
 
   socket.on('webrtcSignal', async (data) => {
-    console.log(data, 'webrtcSignal data')
+    console.log(data, 'webrtcSignal dataaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
     if (data.isCaller) {
-      if (data.ongoingCall.participants.receiver.id) {
+      if (data.ongoingCall.participants.receiver.id||data.ongoingCall.participants.receiver._id) {
         const emitSocketId = userIdSocketIdMap.get(data.ongoingCall.participants.receiver.id);
+        console.log('emitted to receiver web');
         io.to(emitSocketId).emit('webrtcSignal', data)
       }
     } else {
-      if (data.ongoingCall.participants.caller._id) {
+      if (data.ongoingCall.participants.caller.id||data.ongoingCall.participants.caller._id) {
         const emitSocketId = userIdSocketIdMap.get(data.ongoingCall.participants.caller.id);
+        console.log('emitted to caller web');
+
         io.to(emitSocketId).emit('webrtcSignal', data)
       }
     }
@@ -139,42 +143,6 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on('sent connection request', async ( receiverId,userId, username ) => {
-    console.log('requested', receiverId,userId, username );
-    try {
-      if (receiverId) {
-        const receiverSocketId = userIdSocketIdMap.get(receiverId);
-        if (receiverSocketId) {
-          io.to(receiverSocketId).emit('connectionRequestReceived',  userId,username );
-        } else {
-          console.error("Receiver socket not found");
-        }
-      } else {
-        console.error("Receiver Id is not available");
-      }
-    } catch (error) {
-      console.error("Error in sent connection request:", error);
-    }
-  });
-
-
-  socket.on('accept connetion request', async ( receiverId, userId, username ) => {
-    console.log('requested', receiverId);
-    try {
-      if (receiverId) {
-        const receiverSocketId = userIdSocketIdMap.get(receiverId);
-        if (receiverSocketId) {
-          io.to(receiverSocketId).emit('connectionRequestAccepted', userId,username );
-        } else {
-          console.error("Receiver socket not found");
-        }
-      } else {
-        console.error("Receiver Id is not available");
-      }
-    } catch (error) {
-      console.error("Error in accept connetion request:", error);
-    }
-  });
 
 });
 

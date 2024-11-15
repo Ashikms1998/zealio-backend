@@ -8,7 +8,7 @@ const repository = new MessageRepository();
 const service = new MessageService(repository);
 const controller = new MessageController(service)
 
-// router.post("/send",validateToken,controller.messageSend.bind(controller))
+
 router.post("/userLog",controller.userList.bind(controller));
 router.get("/:id",controller.getMessages.bind(controller))
 router.post("/send/:id",controller.sendMessage.bind(controller));

@@ -16,10 +16,8 @@ export const validateToken = async (
     let JWT_KEY = process.env.JWT_SECRET as string;
     let AuthService = new Token();
     const accessToken = req.cookies?.accessToken;
-    
     if (accessToken) {
-      jwt.verify(accessToken,JWT_KEY, (err: any, data: any) => {
-        
+      jwt.verify(accessToken, JWT_KEY, (err: any, data: any) => {
         if (err) {
           return res.status(403).json({
             message: "access to the requested resource is forbidden.",
@@ -50,7 +48,7 @@ export const validateToken = async (
           const { accessToken } = AuthService.generatingTokens(data.userId);
 
           res.cookie("accessToken", accessToken, {
-            httpOnly: true,
+            httpOnly: false,
             secure: true,
             sameSite: "none",
             maxAge: 15 * 60 * 1000,
