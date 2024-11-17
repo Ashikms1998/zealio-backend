@@ -41,6 +41,10 @@ io.on("connection", (socket) => {
   });
 
   const userId = socket.handshake.query.userId;
+
+if (!userId || userId === "undefined") {
+  return;
+} 
   userIdSocketIdMap.set(userId, socket.id);
   console.log(userIdSocketIdMap,"😯😯");
   if (userId != "undefined") userSocketMap[userId as string] = socket.id;
