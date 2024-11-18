@@ -32,6 +32,7 @@ const io = new Server(server, {
   cors: {
     origin: ['https://www.zealio.live','https://zealio.live','http://localhost:3000'],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
   },
 });
 
