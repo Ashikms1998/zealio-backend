@@ -13,6 +13,7 @@ import cors from "cors";
 import AuthRoutes from "./presentation/router/AuthRoutes";
 import MessageRoutes from "./presentation/router/MessageRoutes";
 import cookieParser from "cookie-parser";
+import { errorHandler } from "./presentation/middleware/errorHandling";
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3001;
 
 const server = http.createServer(app);
@@ -106,17 +107,15 @@ if (!userId || userId === "undefined") {
   });
 
   socket.on('webrtcSignal', async (data) => {
-    console.log(data, 'webrtcSignal dataaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
     if (data.isCaller) {
       if (data.ongoingCall.participants.receiver.id||data.ongoingCall.participants.receiver._id) {
         const emitSocketId = userIdSocketIdMap.get(data.ongoingCall.participants.receiver.id);
-        console.log('emitted to receiver web');
         io.to(emitSocketId).emit('webrtcSignal', data)
       }
     } else {
       if (data.ongoingCall.participants.caller.id||data.ongoingCall.participants.caller._id) {
         const emitSocketId = userIdSocketIdMap.get(data.ongoingCall.participants.caller.id);
-        console.log('emitted to caller web');
+        console.log('emitted to caller web',emitSocketId,"this is emitetr socket",userIdSocketIdMap,"this is whole package useridsocketid");
 
         io.to(emitSocketId).emit('webrtcSignal', data)
       }
@@ -170,6 +169,7 @@ app.use(
 app.use(express.static("src/public"));
 app.use("/auth", AuthRoutes);
 app.use("/chat", MessageRoutes);
+// app.use(errorHandler)
 app.use(passport.initialize());
 app.get("/api/home", (req, res) => {
   console.log("hello");
