@@ -17,6 +17,17 @@ import { errorHandler } from "./presentation/middleware/errorHandling";
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3001;
 
 const server = http.createServer(app);
+
+app.use(
+  cors({
+    origin: ['https://www.zealio.live','https://zealio.live','http://localhost:3000'],
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
+    })
+  );
+  app.options('*', cors());
+
+
 const io = new Server(server, {
   cors: {
     origin: "http://localhost:3000",
