@@ -20,7 +20,7 @@ const server = http.createServer(app);
 
 app.use(
   cors({
-    origin: ['https://www.zealio.live','https://zealio.live','http://localhost:3001'],
+    origin: ['https://www.zealio.live','https://zealio.live','http://localhost:3000'],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
     })
@@ -30,7 +30,7 @@ app.use(
 
 const io = new Server(server, {
   cors: {
-    origin: ['https://www.zealio.live','https://zealio.live','http://localhost:3001'],
+    origin: ['https://www.zealio.live','https://zealio.live','http://localhost:3000'],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   },
