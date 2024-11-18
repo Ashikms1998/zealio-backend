@@ -49,7 +49,7 @@ const validateToken = (req, res, next) => __awaiter(void 0, void 0, void 0, func
                 }
                 const { accessToken } = AuthService.generatingTokens(data.userId);
                 res.cookie("accessToken", accessToken, {
-                    httpOnly: true,
+                    httpOnly: false,
                     secure: true,
                     sameSite: "none",
                     maxAge: 15 * 60 * 1000,

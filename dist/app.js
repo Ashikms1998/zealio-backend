@@ -50,7 +50,11 @@ io.on("connection", (socket) => {
         console.log("user disconnected", socket.id);
     });
     const userId = socket.handshake.query.userId;
+    if (!userId || userId === "undefined") {
+        return;
+    }
     userIdSocketIdMap.set(userId, socket.id);
+    console.log(userIdSocketIdMap, "😯😯");
     if (userId != "undefined")
         userSocketMap[userId] = socket.id;
     io.emit("getOnlineUsers", Object.keys(userSocketMap));
@@ -106,16 +110,16 @@ io.on("connection", (socket) => {
         }
     }));
     socket.on('webrtcSignal', (data) => __awaiter(void 0, void 0, void 0, function* () {
-        console.log(data, 'webrtcSignal data');
         if (data.isCaller) {
-            if (data.ongoingCall.participants.receiver.id) {
+            if (data.ongoingCall.participants.receiver.id || data.ongoingCall.participants.receiver._id) {
                 const emitSocketId = userIdSocketIdMap.get(data.ongoingCall.participants.receiver.id);
                 io.to(emitSocketId).emit('webrtcSignal', data);
             }
         }
         else {
-            if (data.ongoingCall.participants.caller._id) {
+            if (data.ongoingCall.participants.caller.id || data.ongoingCall.participants.caller._id) {
                 const emitSocketId = userIdSocketIdMap.get(data.ongoingCall.participants.caller.id);
+                console.log('emitted to caller web', emitSocketId, "this is emitetr socket", userIdSocketIdMap, "this is whole package useridsocketid");
                 io.to(emitSocketId).emit('webrtcSignal', data);
             }
         }
@@ -142,46 +146,6 @@ io.on("connection", (socket) => {
             console.error("Error in hangup event:", error);
         }
     }));
-    socket.on('sent connection request', (receiverId, userId, username) => __awaiter(void 0, void 0, void 0, function* () {
-        console.log('requested', receiverId, userId, username);
-        try {
-            if (receiverId) {
-                const receiverSocketId = userIdSocketIdMap.get(receiverId);
-                if (receiverSocketId) {
-                    io.to(receiverSocketId).emit('connectionRequestReceived', userId, username);
-                }
-                else {
-                    console.error("Receiver socket not found");
-                }
-            }
-            else {
-                console.error("Receiver Id is not available");
-            }
-        }
-        catch (error) {
-            console.error("Error in sent connection request:", error);
-        }
-    }));
-    socket.on('accept connetion request', (receiverId, userId, username) => __awaiter(void 0, void 0, void 0, function* () {
-        console.log('requested', receiverId);
-        try {
-            if (receiverId) {
-                const receiverSocketId = userIdSocketIdMap.get(receiverId);
-                if (receiverSocketId) {
-                    io.to(receiverSocketId).emit('connectionRequestAccepted', userId, username);
-                }
-                else {
-                    console.error("Receiver socket not found");
-                }
-            }
-            else {
-                console.error("Receiver Id is not available");
-            }
-        }
-        catch (error) {
-            console.error("Error in accept connetion request:", error);
-        }
-    }));
 });
 mongoose_1.default
     .connect(process.env.MONGODB_STRING)
@@ -200,6 +164,7 @@ app.use((0, cors_1.default)({
 app.use(express_1.default.static("src/public"));
 app.use("/auth", AuthRoutes_1.default);
 app.use("/chat", MessageRoutes_1.default);
+// app.use(errorHandler)
 app.use(passport_1.default.initialize());
 app.get("/api/home", (req, res) => {
     console.log("hello");

@@ -34,8 +34,9 @@ router.get("/google/callback", passport_1.default.authenticate("google", { sessi
 router.get("/users/search", controller.userQuery.bind(controller));
 router.put("/users/block-unblock", controller.checkBlocked.bind(controller));
 router.post("/addtask", validateToken_1.validateToken, controller.addTask.bind(controller));
-router.get("/fetchTodo", controller.fetchingTasks.bind(controller));
-router.delete("/deleteTask", controller.deleteTask.bind(controller));
-router.put("/updateTaskCompleation", controller.updateTaskCompleation.bind(controller));
+router.get("/fetchTodo", validateToken_1.validateToken, controller.fetchingTasks.bind(controller));
+router.delete("/deleteTask", validateToken_1.validateToken, controller.deleteTask.bind(controller));
+router.put("/updateTaskCompleation", validateToken_1.validateToken, controller.updateTaskCompleation.bind(controller));
 router.get("/userDetails", validateToken_1.validateToken, controller.onUserFind.bind(controller));
+router.post("/logout", controller.onLogout.bind(controller));
 exports.default = router;

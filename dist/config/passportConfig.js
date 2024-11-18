@@ -23,7 +23,7 @@ const { createOrUpdateGoogleUser } = new UserRepository_1.UserRepository();
 passport_1.default.use(new passport_google_oauth20_1.Strategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: `${url}/auth/google/callback`
+    callbackURL: `${process.env.SERVER_URL}/auth/google/callback`,
 }, (accessToken, refreshToken, profile, done) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const user = yield createOrUpdateGoogleUser(profile);

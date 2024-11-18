@@ -22,9 +22,7 @@ class authController {
                 const existingUser = yield this.authService.findUserByEmail(body.email);
                 if (existingUser) {
                     if (!existingUser.verified) {
-                        return res
-                            .status(409)
-                            .json({
+                        return res.status(409).json({
                             error: "Verification Link Already Send to The Given Mail",
                         });
                     }
@@ -138,15 +136,27 @@ class authController {
                 const verified = yield this.authService.checkingOtp(body.email, body.verify_token);
                 console.log(verified, "kasfjsd");
                 if (verified) {
-                    return res.status(200).json({ success: true, message: "Email and OTP verification successfull" });
+                    return res
+                        .status(200)
+                        .json({
+                        success: true,
+                        message: "Email and OTP verification successfull",
+                    });
                 }
                 else {
-                    return res.status(400).json({ success: false, message: "Incorrect OTP" });
+                    return res
+                        .status(400)
+                        .json({ success: false, message: "Incorrect OTP" });
                 }
             }
             catch (error) {
                 console.error(error);
-                return res.status(500).json({ success: false, message: "An error occurred during OTP verification" });
+                return res
+                    .status(500)
+                    .json({
+                    success: false,
+                    message: "An error occurred during OTP verification",
+                });
             }
         });
     }
@@ -158,16 +168,22 @@ class authController {
                 const changingPass = yield this.authService.changePassword(email, password);
                 console.log(changingPass, "kasfjsd");
                 if (changingPass) {
-                    return res.status(200).json({ message: "Password changed successfully" });
+                    return res
+                        .status(200)
+                        .json({ message: "Password changed successfully" });
                 }
                 else {
                     return res.status(400).json({ message: "Password change failed" });
                 }
             }
             catch (error) {
-                console.error('Error changing password:', error);
-                return res.status(500).json({ message: "An error occurred while changing password",
-                    errorDetails: error instanceof Error ? error.message : String(error) });
+                console.error("Error changing password:", error);
+                return res
+                    .status(500)
+                    .json({
+                    message: "An error occurred while changing password",
+                    errorDetails: error instanceof Error ? error.message : String(error),
+                });
             }
         });
     }
@@ -185,9 +201,13 @@ class authController {
                 }
             }
             catch (error) {
-                console.error('Error during admin login:', error);
-                return res.status(500).json({ message: "An error occurred during sign-in",
-                    errorDetails: error instanceof Error ? error.message : String(error) });
+                console.error("Error during admin login:", error);
+                return res
+                    .status(500)
+                    .json({
+                    message: "An error occurred during sign-in",
+                    errorDetails: error instanceof Error ? error.message : String(error),
+                });
             }
         });
     }
@@ -195,11 +215,17 @@ class authController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const response = yield this.authService.allUsers();
-                res.status(200).json({ message: "Users retrieved successfully", data: response });
+                res
+                    .status(200)
+                    .json({ message: "Users retrieved successfully", data: response });
             }
             catch (error) {
-                res.status(500).json({ message: "An error occurred while retrieving users",
-                    errorDetails: error instanceof Error ? error.message : String(error) });
+                res
+                    .status(500)
+                    .json({
+                    message: "An error occurred while retrieving users",
+                    errorDetails: error instanceof Error ? error.message : String(error),
+                });
             }
         });
     }
@@ -209,11 +235,17 @@ class authController {
                 const searchTerm = req.query.q;
                 console.log(searchTerm, "searchTerm");
                 const response = yield this.authService.searchedUsers(searchTerm);
-                res.status(200).json({ message: "Users retrieved successfully", data: response });
+                res
+                    .status(200)
+                    .json({ message: "Users retrieved successfully", data: response });
             }
             catch (error) {
-                res.status(500).json({ message: "An error occurred while retrieving searched users",
-                    errorDetails: error instanceof Error ? error.message : String(error) });
+                res
+                    .status(500)
+                    .json({
+                    message: "An error occurred while retrieving searched users",
+                    errorDetails: error instanceof Error ? error.message : String(error),
+                });
             }
         });
     }
@@ -262,7 +294,7 @@ class authController {
                     sameSite: "none",
                     maxAge: 15 * 60 * 1000,
                 });
-                return res.redirect(`${process.env.CLIENT_URL}/home`);
+                return res.redirect(`${process.env.CLIENT_URL}/home?accessToken=${accessToken}`);
             }
             catch (error) {
                 next(error);
@@ -277,8 +309,8 @@ class authController {
                 const updatedUser = yield this.authService.checkBlocked(userId, isBlocked);
                 if (updatedUser) {
                     return res.status(200).json({
-                        message: `User ${updatedUser.isBlocked ? 'blocked' : 'unblocked'} successfully`,
-                        data: updatedUser
+                        message: `User ${updatedUser.isBlocked ? "blocked" : "unblocked"} successfully`,
+                        data: updatedUser,
                     });
                 }
                 else {
@@ -286,8 +318,12 @@ class authController {
                 }
             }
             catch (error) {
-                console.error('Error during blocking/unblocking user:', error);
-                return res.status(500).json({ error: 'An error occurred while blocking/unblocking the user.' });
+                console.error("Error during blocking/unblocking user:", error);
+                return res
+                    .status(500)
+                    .json({
+                    error: "An error occurred while blocking/unblocking the user.",
+                });
             }
         });
     }
@@ -300,15 +336,17 @@ class authController {
                     res.status(201).json(todoUpdate);
                 }
                 else {
-                    res.status(404).json({ error: 'User not found' });
+                    res.status(404).json({ error: "User not found" });
                 }
             }
             catch (error) {
                 if (error.status === 409) {
-                    return res.status(409).json({ error: 'Task already exists' });
+                    return res.status(409).json({ error: "Task already exists" });
                 }
-                console.error('Error during adding todo task:', error);
-                return res.status(500).json({ error: 'An error occurred while adding todo task.' });
+                console.error("Error during adding todo task:", error);
+                return res
+                    .status(500)
+                    .json({ error: "An error occurred while adding todo task." });
             }
         });
     }
@@ -316,17 +354,21 @@ class authController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const userId = req.query.userId;
+                console.log("🤯", userId);
                 const todoList = yield this.authService.todoList(userId);
+                console.log("🤯", todoList);
                 if (todoList) {
                     res.status(201).json(todoList);
                 }
                 else {
-                    res.status(404).json({ error: 'todoList not found' });
+                    res.status(404).json({ error: "todoList not found" });
                 }
             }
             catch (error) {
-                console.error('Error during fetching todoList:', error);
-                return res.status(500).json({ error: 'An error occurred during fetching todoList.' });
+                console.error("Error during fetching todoList:", error);
+                return res
+                    .status(500)
+                    .json({ error: "An error occurred during fetching todoList." });
             }
         });
     }
@@ -336,16 +378,22 @@ class authController {
                 const TaskId = req.query._id;
                 const userId = req.query.userId;
                 if (!TaskId || !userId) {
-                    return res.status(400).json({ message: "Task ID or User ID is missing" });
+                    return res
+                        .status(400)
+                        .json({ message: "Task ID or User ID is missing" });
                 }
                 const deletedTask = yield this.authService.deletingTask(TaskId, userId);
                 if (!deletedTask) {
-                    return res.status(404).json({ message: "Task not found or unauthorized action" });
+                    return res
+                        .status(404)
+                        .json({ message: "Task not found or unauthorized action" });
                 }
-                res.status(200).json({ message: "Task deleted successfully", deletedTask });
+                res
+                    .status(200)
+                    .json({ message: "Task deleted successfully", deletedTask });
             }
             catch (error) {
-                console.log('Error during deleting task', error);
+                console.log("Error during deleting task", error);
                 res.status(500).json({ message: "Error deleting task" });
             }
         });
@@ -356,16 +404,22 @@ class authController {
                 const TaskId = req.query._id;
                 const userId = req.query.userId;
                 if (!TaskId || !userId) {
-                    return res.status(400).json({ message: "Task ID or User ID is missing" });
+                    return res
+                        .status(400)
+                        .json({ message: "Task ID or User ID is missing" });
                 }
                 const taskStriked = yield this.authService.strikeTask(TaskId, userId);
                 if (!taskStriked) {
-                    return res.status(404).json({ message: "Task not found or unauthorized action" });
+                    return res
+                        .status(404)
+                        .json({ message: "Task not found or unauthorized action" });
                 }
-                res.status(200).json({ message: "Task deleted successfully", taskStriked });
+                res
+                    .status(200)
+                    .json({ message: "Task deleted successfully", taskStriked });
             }
             catch (error) {
-                console.log('Error during striking task', error);
+                console.log("Error during striking task", error);
                 res.status(500).json({ message: "Error striking task" });
             }
         });
@@ -381,12 +435,25 @@ class authController {
                     lastName: user === null || user === void 0 ? void 0 : user.lastName,
                     email: user === null || user === void 0 ? void 0 : user.email,
                     verified: user === null || user === void 0 ? void 0 : user.verified,
-                    isBlocked: user === null || user === void 0 ? void 0 : user.isBlocked
+                    isBlocked: user === null || user === void 0 ? void 0 : user.isBlocked,
                 };
                 return res.json(data);
             }
             catch (error) {
                 console.log(error, "Error finding the user from onUserFind");
+            }
+        });
+    }
+    onLogout(req, res, next) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                res.clearCookie("accessToken");
+                res.clearCookie("refreshToken");
+                return res.status(200).json({ success: true, message: "User Logged Out Successfully" });
+            }
+            catch (error) {
+                console.log("Error while logging out", error);
+                next(error);
             }
         });
     }

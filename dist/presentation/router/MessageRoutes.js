@@ -11,7 +11,6 @@ const MessageRepository_1 = require("../../database/repository/MessageRepository
 const repository = new MessageRepository_1.MessageRepository();
 const service = new MessageService_1.MessageService(repository);
 const controller = new MessageController_1.MessageController(service);
-// router.post("/send",validateToken,controller.messageSend.bind(controller))
 router.post("/userLog", controller.userList.bind(controller));
 router.get("/:id", controller.getMessages.bind(controller));
 router.post("/send/:id", controller.sendMessage.bind(controller));
