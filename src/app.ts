@@ -27,7 +27,7 @@ app.use(
     exposedHeaders: ["set-cookie"],
   })
 );
-// app.options('*', cors());
+app.options('*', cors());
 
 const userIdSocketIdMap = new Map();
 
