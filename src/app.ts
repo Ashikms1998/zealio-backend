@@ -47,7 +47,7 @@ mongoose
     app.use(passport.initialize());
     const io = new Server(server, {
       cors: {
-        origin: `https://www.zealio.live`,
+        origin: `${process.env.CLIENT_URL}`,
         credentials: true,
         exposedHeaders: ["set-cookie"],
       },
