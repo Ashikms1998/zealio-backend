@@ -14,7 +14,7 @@ import AuthRoutes from "./presentation/router/AuthRoutes";
 import MessageRoutes from "./presentation/router/MessageRoutes";
 import cookieParser from "cookie-parser";
 import { errorHandler } from "./presentation/middleware/errorHandling";
-const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3001;
+const PORT = process.env.PORT ? parseInt(process.env.PORT, 10):3001;
 
 const server = http.createServer(app);
 
