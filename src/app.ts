@@ -68,7 +68,7 @@ mongoose
         return;
       }
       userIdSocketIdMap.set(userId, socket.id);
-      console.log(userIdSocketIdMap, "😯😯");
+      console.log(userIdSocketIdMap, "💻😯");
       if (userId != "undefined") userSocketMap[userId as string] = socket.id;
     
       io.emit("getOnlineUsers", Object.keys(userSocketMap));
