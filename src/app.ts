@@ -21,26 +21,28 @@ app.use(cookieParser());
 app.use(express.json());
 
 
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', 'https://www.zealio.live');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  next();
+});
 
 app.use(
   cors({
-    origin: [process.env.CLIENT_URL as string, "https://www.zealio.live"],
+    origin: `${process.env.CLIENT_URL}`,
     credentials: true,
     exposedHeaders: ["set-cookie"],
   })
 );
-app.options('*', cors());
+app.options("*", cors());
 
 const userIdSocketIdMap = new Map();
-
-
 
 const userSocketMap: Record<string, string> = {};
 export const getReceiverSocketId = (receiverId: string) => {
   return userSocketMap[receiverId];
 };
-
-
 
 mongoose
   .connect(process.env.MONGODB_STRING as string)
@@ -63,22 +65,22 @@ mongoose
       socket.on("disconnect", () => {
         console.log("user disconnected", socket.id);
       });
-    
+
       const userId = socket.handshake.query.userId;
-    
+
       if (!userId || userId === "undefined") {
         return;
       }
       userIdSocketIdMap.set(userId, socket.id);
       if (userId != "undefined") userSocketMap[userId as string] = socket.id;
-    
+
       io.emit("getOnlineUsers", Object.keys(userSocketMap));
       socket.on("disconnect", () => {
         console.log("user disconnected", socket.id);
         delete userSocketMap.userId;
         io.emit("getOnlineUsers", Object.keys(userSocketMap));
       });
-    
+
       socket.on("call", async (participants) => {
         console.log("call reached backend participants", participants);
         try {
@@ -96,12 +98,12 @@ mongoose
           console.log("Error in calling:", error);
         }
       });
-    
+
       socket.on("hangupDuringInitiation", async (ongoingCall) => {
         try {
           console.log("Hangup during initiation event received:", ongoingCall);
           const { participants } = ongoingCall;
-    
+
           if (participants && participants.caller && participants.receiver) {
             const receiverSocketId = userIdSocketIdMap.get(
               participants.receiver.id
@@ -111,14 +113,16 @@ mongoose
                 message: "The caller has cancelled the call.",
               });
             }
-    
-            const callerSocketId = userIdSocketIdMap.get(participants.caller.id);
+
+            const callerSocketId = userIdSocketIdMap.get(
+              participants.caller.id
+            );
             if (callerSocketId) {
               io.to(callerSocketId).emit("callCancelled", {
                 message: "Call has been cancelled.",
               });
             }
-    
+
             console.log(
               `Call cancelled between ${participants.caller.id} and ${participants.receiver.id}`
             );
@@ -129,7 +133,7 @@ mongoose
           console.error("Error in hangup during initiation event:", error);
         }
       });
-    
+
       socket.on("webrtcSignal", async (data) => {
         if (data.isCaller) {
           if (
@@ -156,26 +160,26 @@ mongoose
               userIdSocketIdMap,
               "this is whole package useridsocketid"
             );
-    
+
             io.to(emitSocketId).emit("webrtcSignal", data);
           }
         }
       });
-    
+
       socket.on("hangup", async (ongoingCall) => {
         try {
           console.log("Hangup event received:", ongoingCall);
           const { participants } = ongoingCall;
-    
+
           if (participants && participants.caller && participants.receiver) {
             const otherParticipantId =
               socket.id === userIdSocketIdMap.get(participants.caller.id)
                 ? participants.receiver.id
                 : participants.caller.id;
-    
+
             const otherParticipantSocketId =
               userIdSocketIdMap.get(otherParticipantId);
-    
+
             if (otherParticipantSocketId) {
               io.to(otherParticipantSocketId).emit("callEnded", {
                 message: "The other participant has ended the call.",
@@ -193,7 +197,6 @@ mongoose
       });
     });
 
-
     app.use(express.static("src/public"));
     app.use("/auth", AuthRoutes);
     app.use("/chat", MessageRoutes);
@@ -210,4 +213,3 @@ mongoose
   .catch((err) => {
     console.log(err);
   });
-
