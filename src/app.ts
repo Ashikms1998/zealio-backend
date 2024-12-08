@@ -20,9 +20,11 @@ const server = http.createServer(app);
 app.use(cookieParser());
 app.use(express.json());
 
+
+
 app.use(
   cors({
-    origin: `${process.env.CLIENT_URL}`,
+    origin: [process.env.CLIENT_URL as string, "https://www.zealio.live"],
     credentials: true,
     exposedHeaders: ["set-cookie"],
   })
@@ -68,7 +70,6 @@ mongoose
         return;
       }
       userIdSocketIdMap.set(userId, socket.id);
-      console.log(userIdSocketIdMap, "💻😯");
       if (userId != "undefined") userSocketMap[userId as string] = socket.id;
     
       io.emit("getOnlineUsers", Object.keys(userSocketMap));
