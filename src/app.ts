@@ -21,13 +21,6 @@ app.use(cookieParser());
 app.use(express.json());
 
 
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', 'https://www.zealio.live');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  next();
-});
-
 app.use(
   cors({
     origin: `${process.env.CLIENT_URL}`,
@@ -35,7 +28,6 @@ app.use(
     exposedHeaders: ["set-cookie"],
   })
 );
-app.options("*", cors());
 
 const userIdSocketIdMap = new Map();
 
