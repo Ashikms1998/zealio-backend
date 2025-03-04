@@ -23,7 +23,8 @@ app.use(express.json());
 
 app.use(
   cors({
-    origin: `${process.env.CLIENT_URL}`,
+    // origin: `${process.env.CLIENT_URL}`,
+    origin: ["https://www.zealio.live", "https://api.zealio.live"],
     credentials: true,
     exposedHeaders: ["set-cookie"],
   })
